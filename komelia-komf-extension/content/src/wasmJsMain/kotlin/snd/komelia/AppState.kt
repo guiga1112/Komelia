@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import snd.komelia.dialogs.LibraryAutoIdentifyDialog
 import snd.komelia.dialogs.ResetLibraryMetadataDialog
 import snd.komelia.dialogs.ResetSeriesMetadataDialog
 import snd.komelia.dialogs.SettingsDialog
+import snd.komelia.dialogs.UpdateVolumeCoversDialog
 import snd.komelia.kavita.KavitaComponent
 import snd.komelia.komga.KomgaComponent
 import snd.komelia.ui.AppNotifications
@@ -50,6 +52,7 @@ import snd.komelia.ui.LocalWindowWidth
 import snd.komelia.ui.Theme
 import snd.komelia.ui.platform.PlatformType
 import snd.komelia.ui.platform.WindowSizeClass
+import snd.komelia.ui.strings.KomfExtensionStrings
 import snd.komf.api.KomfServerLibraryId
 import snd.komf.api.KomfServerSeriesId
 import snd.komf.api.MediaServer
@@ -67,6 +70,7 @@ class AppState(
 
     private val theme = MutableStateFlow(Theme.DARK)
     private val currentDialog = MutableStateFlow<KomfActiveDialog>(KomfActiveDialog.None)
+    private val updateVolumeCoversLabel = MutableStateFlow("")
 
     private val mediaServer = MutableStateFlow(MediaServer.KOMGA)
     private val mediaServerComponent: MediaServerComponent
@@ -91,7 +95,7 @@ class AppState(
         when (document.title.split(' ')[0]) {
             "Komga" -> {
                 mediaServer.value = MediaServer.KOMGA
-                mediaServerComponent = KomgaComponent(theme, currentDialog)
+                mediaServerComponent = KomgaComponent(theme, currentDialog, updateVolumeCoversLabel)
             }
 
             else -> {
@@ -175,6 +179,10 @@ class AppState(
                         LocalKomfViewModelFactory provides viewModelFactory,
                         LocalResourceReader provides CustomWasmResourceReader
                     ) {
+                        val updateVolumeCoversLabel = KomfExtensionStrings.updateVolumeCoversTitle()
+                        LaunchedEffect(updateVolumeCoversLabel) {
+                            this@AppState.updateVolumeCoversLabel.value = updateVolumeCoversLabel
+                        }
                         val currentDialog = currentDialog.collectAsState().value
                         val onDismissRequest = {
                             this@AppState.currentDialog.value = KomfActiveDialog.None
@@ -211,6 +219,13 @@ class AppState(
                                 onDismissRequest = onDismissRequest
                             )
 
+                            is KomfActiveDialog.SeriesVolumeCovers -> UpdateVolumeCoversDialog(
+                                mediaServer = mediaServer,
+                                seriesId = currentDialog.seriesId,
+                                libraryId = currentDialog.libraryId,
+                                onDismissRequest = onDismissRequest,
+                            )
+
                             KomfActiveDialog.Settings -> SettingsDialog(
                                 mediaServer = mediaServer,
                                 onDismiss = onDismissRequest
@@ -243,6 +258,11 @@ sealed interface KomfActiveDialog {
     ) : KomfActiveDialog
 
     data class SeriesReset(
+        val seriesId: KomfServerSeriesId,
+        val libraryId: KomfServerLibraryId,
+    ) : KomfActiveDialog
+
+    data class SeriesVolumeCovers(
         val seriesId: KomfServerSeriesId,
         val libraryId: KomfServerLibraryId,
     ) : KomfActiveDialog

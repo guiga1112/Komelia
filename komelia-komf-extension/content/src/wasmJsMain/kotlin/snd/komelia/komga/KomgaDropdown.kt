@@ -34,7 +34,7 @@ class KomgaDropdown(
         listContainer.classList.value = "v-list v-sheet theme--dark v-list--dense"
 
         items.forEach { item ->
-            listContainer.appendChild(createMenuItem(item.name, item.onClick))
+            listContainer.appendChild(createMenuItem(item))
         }
         element.appendChild(listContainer)
 
@@ -89,22 +89,31 @@ class KomgaDropdown(
         isShown = false
     }
 
-    private fun createMenuItem(title: String, onClick: () -> Unit): HTMLDivElement {
+    private fun createMenuItem(dropdownItem: DropdownItem): HTMLDivElement {
         val item = document.createElement("div") as HTMLDivElement
         item.setAttribute("role", "menuitem")
         item.classList.value = "v-list-item v-list-item--link theme--dark"
-        item.addEventListener("click") { event -> onClick() }
+        item.addEventListener("click") { dropdownItem.onClick() }
 
         val itemTitle = document.createElement("div") as HTMLDivElement
         itemTitle.classList.value = "v-list-item__title"
-        itemTitle.innerText = title
+        itemTitle.innerText = dropdownItem.name
         item.appendChild(itemTitle)
+
+        dropdownItem.nameFlow?.onEach { name ->
+            itemTitle.innerText = name
+            item.style.display = if (name.isBlank()) "none" else ""
+        }?.launchIn(coroutineScope)
 
         return item
     }
 
-    data class DropdownItem(
+    class DropdownItem private constructor(
         val name: String,
+        val nameFlow: StateFlow<String>?,
         val onClick: () -> Unit,
-    )
+    ) {
+        constructor(name: String, onClick: () -> Unit) : this(name, null, onClick)
+        constructor(nameFlow: StateFlow<String>, onClick: () -> Unit) : this("", nameFlow, onClick)
+    }
 }

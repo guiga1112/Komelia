@@ -172,7 +172,14 @@
     <string name="series_delete_downloaded">Delete downloaded</string>
     <string name="series_auto_identify">Auto-identify</string>
     <string name="series_identify">Identify (Komf)</string>
+    <string name="series_update_volume_covers">Update Volume Covers</string>
     <string name="series_reset_metadata">Reset metadata (Komf)</string>
+    <string name="volume_cover_update_starting">Starting volume cover update…</string>
+    <string name="volume_cover_update_downloading">Downloading MangaDex volume covers…</string>
+    <string name="volume_cover_update_applying">Applying volume covers…</string>
+    <string name="volume_cover_update_failed">Volume cover update failed</string>
+    <string name="volume_cover_update_follow_failed">Could not follow the volume cover update job</string>
+    <string name="volume_cover_update_success">Volume covers updated</string>
     <string name="series_analyze">Analyze</string>
     <string name="series_refresh_metadata">Refresh metadata</string>
 

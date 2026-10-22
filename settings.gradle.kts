@@ -52,3 +52,16 @@ include(":third_party:compose-sonner:sonner")
 includeBuild("third_party/secret-service") {
     dependencySubstitution { substitute(module("de.swiesend:secret-service")) }
 }
+
+// Resolve the custom Komf checkout from either an embedded or sibling worktree.
+// The custom client supplies the dedicated Update Volume Covers endpoint.
+val localKomfBuild = sequenceOf(file(".."), file("../.."), file("../komf-2.1-custom"))
+    .firstOrNull { it.resolve("komf-client").isDirectory && it.resolve("komf-api-models").isDirectory }
+if (localKomfBuild != null) {
+    includeBuild(localKomfBuild) {
+        dependencySubstitution {
+            substitute(module("io.github.snd-r.komf:client")).using(project(":komf-client"))
+            substitute(module("io.github.snd-r.komf:api-models")).using(project(":komf-api-models"))
+        }
+    }
+}

@@ -1,6 +1,7 @@
 package snd.komelia.komga
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.w3c.dom.HTMLElement
 import snd.komelia.KomfActiveDialog
 import snd.komelia.MediaServerComponent
@@ -12,9 +13,14 @@ import snd.komelia.ui.Theme
 class KomgaComponent(
     private val theme: MutableStateFlow<Theme>,
     private val currentDialog: MutableStateFlow<KomfActiveDialog>,
+    updateVolumeCoversLabel: StateFlow<String>,
 ) : MediaServerComponent {
     private val settingsButton = KomgaSettingsButton(theme = theme, currentDialog = currentDialog)
-    private val seriesActions = KomgaSeriesActions(theme = theme, currentDialog = currentDialog)
+    private val seriesActions = KomgaSeriesActions(
+        theme = theme,
+        currentDialog = currentDialog,
+        updateVolumeCoversLabel = updateVolumeCoversLabel,
+    )
     private val libraryActions = KomgaLibraryActions(theme = theme, currentDialog = currentDialog)
 
     private val settingsButtonNext = KomgaSettingsButtonNext(theme = theme, currentDialog = currentDialog)

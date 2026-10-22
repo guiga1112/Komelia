@@ -20,6 +20,7 @@ import snd.komf.api.KomfServerSeriesId
 class KomgaSeriesActions(
     private val theme: StateFlow<Theme>,
     private val currentDialog: MutableStateFlow<KomfActiveDialog>,
+    updateVolumeCoversLabel: StateFlow<String>,
 ) {
     private val element: HTMLButtonElement = document.createElement("button") as HTMLButtonElement
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
@@ -27,6 +28,7 @@ class KomgaSeriesActions(
         parent = element,
         items = listOf(
             KomgaDropdown.DropdownItem("Identify", this::onIdentifyClick),
+            KomgaDropdown.DropdownItem(updateVolumeCoversLabel, this::onUpdateVolumeCoversClick),
             KomgaDropdown.DropdownItem("Reset Metadata", this::onResetMetadataClick),
         ),
         theme = theme
@@ -65,6 +67,19 @@ class KomgaSeriesActions(
             seriesId == null -> currentDialog.value = KomfActiveDialog.ErrorDialog("Failed to fine seriesId")
             libraryId == null -> currentDialog.value = KomfActiveDialog.ErrorDialog("Failed to find libraryId")
             else -> currentDialog.value = KomfActiveDialog.SeriesReset(
+                seriesId = seriesId,
+                libraryId = libraryId,
+            )
+        }
+    }
+
+    private fun onUpdateVolumeCoversClick() {
+        val seriesId = getSeriesId()
+        val libraryId = getLibraryId()
+        when {
+            seriesId == null -> currentDialog.value = KomfActiveDialog.ErrorDialog("Failed to find seriesId")
+            libraryId == null -> currentDialog.value = KomfActiveDialog.ErrorDialog("Failed to find libraryId")
+            else -> currentDialog.value = KomfActiveDialog.SeriesVolumeCovers(
                 seriesId = seriesId,
                 libraryId = libraryId,
             )

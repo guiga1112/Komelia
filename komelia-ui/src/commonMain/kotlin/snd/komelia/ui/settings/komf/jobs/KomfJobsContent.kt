@@ -215,6 +215,11 @@ private fun JobCard(
                 }
             }
         }
+        job.message
+            ?.lineSequence()
+            ?.firstOrNull()
+            ?.takeIf { it.isNotBlank() }
+            ?.let { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         job.finishedAt?.let {
             val duration: Duration = it.minus(job.startedAt)
             Text(stringResource(Res.string.komf_job_duration, duration.toString(DurationUnit.SECONDS, 2)))
